@@ -31,6 +31,7 @@
 
         <service
             android:name=".MusicService"
+            android:stopWithTask="true"
             android:foregroundServiceType="mediaPlayback"
             android:icon="@drawable/baseline_music_note_24"
             android:logo="@drawable/baseline_music_note_24"

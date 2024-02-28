@@ -28,19 +28,9 @@ private val DarkColorPalette = darkColorScheme(
 
 @Composable
 fun MusicPlayerTheme(
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
 
-//    val view = LocalView.current
-//    if (!view.isInEditMode) {
-//        SideEffect {
-//            val window = (view.context as Activity).window
-//            window.statusBarColor = darkTheme.primary.toArgb()
-//            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-//        }
-//    }
 
     MaterialTheme(
         colorScheme = DarkColorPalette,

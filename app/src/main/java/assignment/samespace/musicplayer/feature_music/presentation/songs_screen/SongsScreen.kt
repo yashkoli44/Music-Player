@@ -76,7 +76,7 @@ fun SongsScreen(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(songsScreenState.songs) {
         songsScreenViewModel.onEvent(SongsScreenEvent.GetAllSongs)
     }
 

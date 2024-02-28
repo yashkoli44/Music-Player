@@ -2,7 +2,9 @@
 <resources>
 
     <style name="Theme.MusicPlayer" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#FF000000</item>
+        <item name="android:statusBarColor">#44000000</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 </resources>

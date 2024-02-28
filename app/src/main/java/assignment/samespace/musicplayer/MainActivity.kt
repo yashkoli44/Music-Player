@@ -33,38 +33,37 @@ import assignment.samespace.musicplayer.ui.theme.MusicPlayerTheme
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var mediaControllerHelper: MediaControllerHelper
+    @Inject
+    lateinit var mediaControllerHelper: MediaControllerHelper
 
-    private fun createMusicPlayerNotificationChannel(context: Context) {
+    private fun createMusicPlayerNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Music Player"
             val descriptionText = "Helps music player run in background"
 
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
 
             val channel = NotificationChannel("player_service_notification", name, importance).apply {
                 description = descriptionText
             }
 
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             notificationManager.createNotificationChannel(channel)
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        mediaControllerHelper = MediaControllerHelper(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        createMusicPlayerNotificationChannel(this)
+        createMusicPlayerNotificationChannel()
+
 
         setContent {
             MusicPlayerTheme {

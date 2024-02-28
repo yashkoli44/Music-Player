@@ -11,6 +11,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.CommandButton
+import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaNotification
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -22,67 +23,11 @@ class MusicService : MediaSessionService() {
 
     private var mediaSession: MediaSession? = null
 
-
-//    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        when(intent?.action){
-//            "PLAY_ACTION" -> {
-//                Log.d("PLAY", "Play")
-//                if(mediaSession?.player?.isPlaying == true) {
-//                    mediaSession?.player?.pause()
-//
-//                }
-//                else{
-//                    mediaSession?.player?.play()
-//                }
-//            }
-//            "STOP_ACTION" -> {
-//                Log.d("PLAY", "Play")
-//                mediaSession?.player?.stop()
-//            }
-//        }
-//        return super.onStartCommand(intent, flags, startId)
-//    }
-
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
-//        setMediaNotificationProvider(object: MediaNotification.Provider{
-//            override fun createNotification(
-//                mediaSession: MediaSession,
-//                customLayout: ImmutableList<CommandButton>,
-//                actionFactory: MediaNotification.ActionFactory,
-//                onNotificationChangedCallback: MediaNotification.Provider.Callback
-//            ): MediaNotification {
-//
-//
-//                val playIntent = Intent(this@MusicService, MusicService::class.java).apply {
-//                    action = "PLAY_ACTION"
-//                }
-//                val playPendingIntent: PendingIntent = PendingIntent.getService(this@MusicService, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-//
-//                return MediaNotification(1, NotificationCompat.Builder(this@MusicService, "player_service_notification")
-//                    // Show controls on lock screen even when user hides sensitive content.
-//                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//                    .setSmallIcon(R.drawable.baseline_music_note_24)
-//                    // Add media control buttons that invoke intents in your media service
-//                    .addAction(R.drawable.previous, "Previous", playPendingIntent) // #0
-//                    .addAction(R.drawable.play_notification, "Pause", playPendingIntent) // #1
-//                    .addAction(R.drawable.next, "Next", playPendingIntent) // #2
-//                    // Apply the media style template
-//                    .setStyle(
-//                        MediaStyleNotificationHelper.MediaStyle(mediaSession)
-//                            .setShowActionsInCompactView(0, 1, 2))
-//                    .setContentTitle(mediaSession.player.mediaMetadata.title)
-//                    .setContentText(mediaSession.player.mediaMetadata.artist)
-//                    .build())
-//            }
-//
-//            override fun handleCustomCommand(session: MediaSession, action: String, extras: Bundle): Boolean {
-//                return true
-//            }
-//
-//        })
+        setMediaNotificationProvider(DefaultMediaNotificationProvider.Builder(this).setChannelId("player_service_notification").build().apply { setSmallIcon(R.drawable.baseline_music_note_24) })
 
         val player = ExoPlayer.Builder(this)
             .build()

@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -35,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -98,7 +103,7 @@ fun PlayerScreen(
                         ), Color.Black
                     )
                 )
-            ),
+            ).windowInsetsPadding(WindowInsets.safeContent),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(10.dp))
@@ -179,18 +184,22 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Image(painter = painterResource(R.drawable.previous), contentDescription = "play", modifier = Modifier.size(30.dp).clickable {
-                    playScreenViewModel.onEvent(PlayScreenEvent.PreviousSong)
-                })
+                Image(painter = painterResource(R.drawable.previous), contentDescription = "play", modifier = Modifier.size(30.dp).alpha(if(playScreenState.hasPrevious) 1f else 0f).clickable {
+                    if(playScreenState.hasPrevious) {
+                        playScreenViewModel.onEvent(PlayScreenEvent.PreviousSong)
+                    }
 
+                })
                 Image(
                     if (playScreenState.isPlaying) painterResource(R.drawable.pause) else painterResource(R.drawable.play),
                     contentDescription = "pause button",
-                    modifier = Modifier.size(50.dp).clickable {
+                    modifier = Modifier.size(50.dp).clip(CircleShape).clickable {
                         playScreenViewModel.onEvent(PlayScreenEvent.TogglePlayback)
                     })
-                Image(painter = painterResource(R.drawable.next), contentDescription = "play", modifier = Modifier.size(30.dp).clickable {
-                    playScreenViewModel.onEvent(PlayScreenEvent.NextSong)
+                Image(painter = painterResource(R.drawable.next), contentDescription = "play", modifier = Modifier.size(30.dp).alpha(if(playScreenState.hasNext) 1f else 0f).clickable {
+                    if(playScreenState.hasNext) {
+                        playScreenViewModel.onEvent(PlayScreenEvent.NextSong)
+                    }
                 })
 
             }

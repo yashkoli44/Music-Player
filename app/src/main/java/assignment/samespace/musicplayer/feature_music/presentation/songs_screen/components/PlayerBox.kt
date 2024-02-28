@@ -50,20 +50,27 @@ fun PlayerBox(
     val interactionSource = remember { MutableInteractionSource() }
 
     Box(
-        modifier = Modifier.fillMaxWidth().background(Brush.verticalGradient(colorStops = colorStops)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Brush.verticalGradient(colorStops = colorStops)),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable(
-                interactionSource = interactionSource,
-                indication = null
-            ) {
-                if (songTitle != null) {
-                    onClick()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) {
+                    if (songTitle != null) {
+                        onClick()
+                    }
                 }
-            }.alpha(if (songTitle == null) 0f else 1f)
+                .alpha(if (songTitle == null) 0f else 1f)
                 .background(
                     color = Color(
-                        songAccent?.substring(1).hexStringToHexadecimal()
+                        songAccent
+                            ?.substring(1)
+                            .hexStringToHexadecimal()
                     )
                 )
                 .padding(vertical = 10.dp, horizontal = 20.dp),
@@ -77,7 +84,9 @@ fun PlayerBox(
                     model = songImage,
                     contentDescription = "",
                     placeholder = painterResource(R.drawable.place_holder),
-                    modifier = Modifier.clip(CircleShape).size(50.dp),
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(50.dp),
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.width(15.dp))
@@ -87,9 +96,13 @@ fun PlayerBox(
             Image(
                 if (isPlaying) painterResource(R.drawable.pause) else painterResource(R.drawable.play),
                 contentDescription = "pause button",
-                modifier = Modifier.padding(5.dp).size(30.dp).clickable {
-                    onClickButton()
-                })
+                modifier = Modifier
+                    .padding(5.dp)
+                    .size(30.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        onClickButton()
+                    })
 
         }
 
