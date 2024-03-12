@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Vibrator
 import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
 import androidx.activity.ComponentActivity
@@ -27,6 +28,7 @@ import androidx.media3.session.SessionToken
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import assignment.samespace.musicplayer.feature_music.domain.use_cases.MusicUseCases
 import assignment.samespace.musicplayer.feature_music.presentation.songs_screen.SongsScreen
 import assignment.samespace.musicplayer.feature_music.presentation.player_screen.PlayerScreen
 import assignment.samespace.musicplayer.ui.theme.MusicPlayerTheme
@@ -38,8 +40,15 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject
+//    @Inject
     lateinit var mediaControllerHelper: MediaControllerHelper
+
+    @Inject
+    lateinit var musicUseCases: MusicUseCases
+
+    @Inject
+    lateinit var vibrator: Vibrator
+
 
     private fun createMusicPlayerNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -56,6 +65,11 @@ class MainActivity : ComponentActivity() {
 
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mediaControllerHelper = MediaControllerHelper(this)
     }
 
 
@@ -79,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             ExitTransition.None
                         }) {
                         composable(Route.SongsScreen.name) {
-                            SongsScreen(navController)
+                            SongsScreen(navController, vibrator, musicUseCases, mediaControllerHelper)
                         }
                         composable(Route.PlayerScreen.name,
                             enterTransition = {
@@ -102,7 +116,7 @@ class MainActivity : ComponentActivity() {
                                     towards = AnimatedContentTransitionScope.SlideDirection.Down
                                 )
                             }) {
-                            PlayerScreen(navController)
+                            PlayerScreen(navController, vibrator, mediaControllerHelper)
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package assignment.samespace.musicplayer.feature_music.presentation.songs_screen.components
 
 import android.net.Uri
+import android.os.Vibrator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

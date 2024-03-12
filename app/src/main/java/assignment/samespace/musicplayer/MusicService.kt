@@ -42,10 +42,8 @@ class MusicService : MediaSessionService() {
 
 
         })
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 9, intent,  PendingIntent.FLAG_IMMUTABLE)
+
         mediaSession = MediaSession.Builder(this, player)
-            .setSessionActivity(pendingIntent)
             .build()
 
     }

@@ -4,7 +4,11 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
@@ -18,10 +22,21 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class PlayScreenViewModel @Inject constructor(
+//@HiltViewModel
+class PlayScreenViewModel /*@Inject*/ constructor(
     mediaControllerHelper: MediaControllerHelper
 ) : ViewModel() {
+
+    class PlayScreenViewModelFactory(private val mediaControllerHelper: MediaControllerHelper) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(PlayScreenViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return PlayScreenViewModel(mediaControllerHelper) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
+
 
     private var _playScreenState = mutableStateOf(PlayScreenState())
     val playScreenState: State<PlayScreenState> = _playScreenState

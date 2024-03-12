@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -13,16 +14,28 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player.Listener
 import androidx.media3.session.MediaController
 import assignment.samespace.musicplayer.MediaControllerHelper
+import assignment.samespace.musicplayer.feature_music.data.repository.SongRepositoryImpl
+import assignment.samespace.musicplayer.feature_music.domain.use_cases.GetAllSongsUseCase
 import assignment.samespace.musicplayer.feature_music.domain.use_cases.MusicUseCases
+import assignment.samespace.musicplayer.feature_music.presentation.player_screen.PlayScreenViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class SongsScreenViewModel @Inject constructor(
+class SongsScreenViewModel(
     private val musicUseCases: MusicUseCases,
     private val mediaControllerHelper: MediaControllerHelper,
 ) : ViewModel() {
+
+    class SongsScreenViewModelFactory(private val musicUseCases: MusicUseCases, private val mediaControllerHelper: MediaControllerHelper) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(SongsScreenViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return SongsScreenViewModel(musicUseCases, mediaControllerHelper) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
+    }
 
     private val _songsScreenState = mutableStateOf(SongsScreenState())
     val songsScreenState: State<SongsScreenState> = _songsScreenState
@@ -61,6 +74,7 @@ class SongsScreenViewModel @Inject constructor(
                 }
             })
         }
+        onEvent(SongsScreenEvent.GetAllSongs)
     }
 
 

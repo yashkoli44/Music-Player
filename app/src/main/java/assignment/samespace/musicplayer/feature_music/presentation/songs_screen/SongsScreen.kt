@@ -1,6 +1,9 @@
 package assignment.samespace.musicplayer.feature_music.presentation.songs_screen
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -35,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,12 +52,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import assignment.samespace.musicplayer.MediaControllerHelper
 import assignment.samespace.musicplayer.R
 import assignment.samespace.musicplayer.Route
+import assignment.samespace.musicplayer.feature_music.domain.use_cases.MusicUseCases
+import assignment.samespace.musicplayer.feature_music.presentation.player_screen.PlayScreenEvent
 import assignment.samespace.musicplayer.feature_music.presentation.songs_screen.components.PlayerBox
 import assignment.samespace.musicplayer.feature_music.presentation.songs_screen.components.SongList
+import assignment.samespace.musicplayer.utils.vibrate
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 
@@ -62,8 +70,18 @@ import kotlinx.coroutines.launch
 @Composable
 fun SongsScreen(
     navController: NavController,
-    songsScreenViewModel: SongsScreenViewModel = hiltViewModel()
+    vibrator: Vibrator,
+    musicUseCases: MusicUseCases,
+    mediaControllerHelper: MediaControllerHelper,
+//    songsScreenViewModel: SongsScreenViewModel = hiltViewModel()
 ) {
+
+    val songsScreenViewModel: SongsScreenViewModel = viewModel(
+        factory = SongsScreenViewModel.SongsScreenViewModelFactory(
+            musicUseCases,
+            mediaControllerHelper
+        )
+    )
 
     val songsScreenState = songsScreenViewModel.songsScreenState.value
 
@@ -76,84 +94,99 @@ fun SongsScreen(
     val interactionSource = remember { MutableInteractionSource() }
 
 
-    LaunchedEffect(songsScreenState.songs) {
-        songsScreenViewModel.onEvent(SongsScreenEvent.GetAllSongs)
-    }
-
-
     Scaffold(
         bottomBar = {
-            if (!songsScreenState.loadingSongs && !songsScreenState.isError && songsScreenState.songs.isNotEmpty()) {
-                Column(
-                    modifier = Modifier.clickable(
-                        interactionSource = interactionSource,
-                        indication = null
-                    ) { }
+            Column(
+                modifier = Modifier.clickable(
+                    interactionSource = interactionSource,
+                    indication = null
+                ) { }
+            ) {
+                PlayerBox(
+                    songTitle = songsScreenState.playSongTitle,
+                    songImage = songsScreenState.playingSongImage,
+                    songAccent = songsScreenState.playingSongAccent,
+                    isPlaying = songsScreenState.isPlaying,
+                    onClick = {
+                        navController.navigate(Route.PlayerScreen.name)
+                    },
+                    onClickButton = {
+                        songsScreenViewModel.onEvent(SongsScreenEvent.TogglePlayback)
+                        // haptic feedback
+                        vibrate(vibrator)
+                    }
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color.Black),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    PlayerBox(
-                        songTitle = songsScreenState.playSongTitle,
-                        songImage = songsScreenState.playingSongImage,
-                        songAccent = songsScreenState.playingSongAccent,
-                        isPlaying = songsScreenState.isPlaying,
-                        onClick = {
-                            navController.navigate(Route.PlayerScreen.name)
-                        },
-                        onClickButton = {
-                            songsScreenViewModel.onEvent(SongsScreenEvent.TogglePlayback)
-                        }
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth().background(color = Color.Black),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Column(
-                            modifier = Modifier.clickable(
+                    Column(
+                        modifier = Modifier
+                            .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
                                 coroutineScope.launch {
-                                    pagerState.animateScrollToPage(0, animationSpec = TweenSpec())
+                                    pagerState.animateScrollToPage(
+                                        0,
+                                        animationSpec = TweenSpec()
+                                    )
                                 }
-                            }.padding(horizontal = 30.dp, vertical = 15.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "For You",
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    color = if (pagerState.currentPage == 0) Color.White else Color.Gray
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(5.dp))
-                            if (pagerState.currentPage == 0) {
-                                Icon(Icons.Default.Circle, contentDescription = "selected", modifier = Modifier.size(8.dp))
                             }
+                            .padding(horizontal = 30.dp, vertical = 15.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "For You",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = if (pagerState.currentPage == 0) Color.White else Color.Gray
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+                        if (pagerState.currentPage == 0) {
+                            Icon(
+                                Icons.Default.Circle,
+                                contentDescription = "selected",
+                                modifier = Modifier.size(8.dp)
+                            )
                         }
-                        Column(
-                            modifier = Modifier.clickable(
+                    }
+                    Column(
+                        modifier = Modifier
+                            .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
                                 coroutineScope.launch {
-                                    pagerState.animateScrollToPage(1, animationSpec = TweenSpec())
+                                    pagerState.animateScrollToPage(
+                                        1,
+                                        animationSpec = TweenSpec()
+                                    )
                                 }
 
-                            }.padding(horizontal = 30.dp, vertical = 15.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Top Tracks",
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    color = if (pagerState.currentPage == 1) Color.White else Color.Gray
-                                )
-                            )
-                            Spacer(modifier = Modifier.height(5.dp))
-                            if (pagerState.currentPage == 1) {
-                                Icon(Icons.Default.Circle, contentDescription = "selected", modifier = Modifier.size(8.dp))
                             }
+                            .padding(horizontal = 30.dp, vertical = 15.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Top Tracks",
+                            style = TextStyle(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = if (pagerState.currentPage == 1) Color.White else Color.Gray
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(5.dp))
+                        if (pagerState.currentPage == 1) {
+                            Icon(
+                                Icons.Default.Circle,
+                                contentDescription = "selected",
+                                modifier = Modifier.size(8.dp)
+                            )
                         }
                     }
                 }
@@ -190,7 +223,12 @@ fun SongsScreen(
                         contentPadding = pv,
                         songs = songsScreenState.songs,
                         onItemClick = { currentIndex, song ->
-                            songsScreenViewModel.onEvent(SongsScreenEvent.SetSongsAndStart(songsScreenState.songs, currentIndex))
+                            songsScreenViewModel.onEvent(
+                                SongsScreenEvent.SetSongsAndStart(
+                                    songsScreenState.songs,
+                                    currentIndex
+                                )
+                            )
                         }
                     )
                 } else {

@@ -1,6 +1,7 @@
 package assignment.samespace.musicplayer.di
 
 import android.content.Context
+import android.os.Vibrator
 import assignment.samespace.musicplayer.MediaControllerHelper
 import assignment.samespace.musicplayer.feature_music.data.data_source.SongsApi
 import assignment.samespace.musicplayer.feature_music.data.repository.SongRepositoryImpl
@@ -45,8 +46,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMediaController(@ApplicationContext context: Context): MediaControllerHelper{
-        return MediaControllerHelper(context)
+    fun provideMediaController(@ApplicationContext context: Context): Vibrator{
+        return context.getSystemService(Vibrator::class.java)
     }
 
 
