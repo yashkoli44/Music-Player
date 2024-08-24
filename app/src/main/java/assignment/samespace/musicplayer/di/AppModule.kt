@@ -46,7 +46,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMediaController(@ApplicationContext context: Context): Vibrator{
+    fun provideVibrator(@ApplicationContext context: Context): Vibrator{
         return context.getSystemService(Vibrator::class.java)
     }
 
